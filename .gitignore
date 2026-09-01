@@ -1,5 +1,7 @@
 .claude/
 local.properties
+*.keystore.jks
+keystore.properties
 .gradle/
 build/
 app/build/
