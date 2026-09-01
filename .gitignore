@@ -1,0 +1,10 @@
+.claude/
+local.properties
+.gradle/
+build/
+app/build/
+*.iml
+.idea/
+.cxx/
+captures/
+.DS_Store
