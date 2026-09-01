@@ -1,11 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Contact search & dialing (FR-Phase2): both requested together, at runtime, only when the
+         user turns the feature on in Settings — never requested unconditionally at first launch. -->
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <!-- Needed specifically for TelecomManager.getSelfManagedPhoneAccounts(), which is how
+         self-managed calling apps (WhatsApp, etc.) are discovered — getCallCapablePhoneAccounts()
+         alone does not return them, confirmed against a real device. -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
     <queries>
         <intent>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
         </intent>
+        <!-- Defense-in-depth alongside the HOME-role visibility exemption (T-2): explicit
+             visibility for the communication apps CommunicationServiceResolver checks for. -->
+        <package android:name="com.whatsapp" />
+        <package android:name="org.telegram.messenger" />
     </queries>
 
     <application

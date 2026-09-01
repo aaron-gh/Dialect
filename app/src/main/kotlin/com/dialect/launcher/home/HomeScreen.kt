@@ -49,6 +49,7 @@ import com.dialect.launcher.homerole.HomeRoleManager
 fun HomeScreen(viewModel: HomeViewModel, onOpenSettings: () -> Unit, modifier: Modifier = Modifier) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val announcement by viewModel.liveRegionAnnouncement.collectAsStateWithLifecycle()
+    val servicePickerRequest by viewModel.servicePickerRequest.collectAsStateWithLifecycle()
     val focusRequester = remember { FocusRequester() }
     val context = LocalContext.current
 
@@ -135,12 +136,12 @@ fun HomeScreen(viewModel: HomeViewModel, onOpenSettings: () -> Unit, modifier: M
                     // user explicitly navigates into it (A11Y-4's "no spam" principle).
                     if (state.emptyStateApps.isNotEmpty()) {
                         LazyColumn {
-                            items(state.emptyStateApps) { entry ->
+                            items(state.emptyStateApps) { target ->
                                 MatchListItem(
-                                    entry = entry,
+                                    target = target,
                                     isTopMatch = false,
-                                    onClick = { viewModel.onLaunchMatch(entry) },
-                                    onLongClick = { viewModel.onLongPressMatch(entry) },
+                                    onClick = { viewModel.onLaunchMatch(target) },
+                                    onLongClick = { viewModel.onLongPressMatch(target) },
                                 )
                             }
                         }
@@ -150,7 +151,7 @@ fun HomeScreen(viewModel: HomeViewModel, onOpenSettings: () -> Unit, modifier: M
                 else -> LazyColumn {
                     itemsIndexed(state.matches) { index, match ->
                         MatchListItem(
-                            entry = match.entry,
+                            target = match.entry,
                             isTopMatch = index == 0,
                             onClick = { viewModel.onLaunchMatch(match.entry) },
                             onLongClick = { viewModel.onLongPressMatch(match.entry) },
@@ -167,6 +168,15 @@ fun HomeScreen(viewModel: HomeViewModel, onOpenSettings: () -> Unit, modifier: M
             onBackspace = viewModel::onBackspace,
             onBackspaceLongPress = viewModel::onClearBuffer,
             onEnter = viewModel::onEnter,
+        )
+    }
+
+    servicePickerRequest?.let { request ->
+        ServicePickerDialog(
+            request = request,
+            onServicePicked = viewModel::onServicePicked,
+            onAskEveryTimePicked = viewModel::onAskEveryTimePicked,
+            onDismiss = viewModel::onServicePickerDismissed,
         )
     }
 }

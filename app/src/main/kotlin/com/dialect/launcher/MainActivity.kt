@@ -53,6 +53,7 @@ class MainActivity : ComponentActivity() {
                     if (showSettings) {
                         SettingsScreen(
                             settingsRepository = container.settingsRepository,
+                            communicationServiceResolver = container.communicationServiceResolver,
                             onBack = { showSettings = false },
                         )
                     } else {
