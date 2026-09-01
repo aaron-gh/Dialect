@@ -14,9 +14,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -31,6 +33,14 @@ fun SettingsScreen(
 ) {
     val settings by settingsRepository.settings.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val versionName = remember {
+        try {
+            context.packageManager.getPackageInfo(context.packageName, 0).versionName
+        } catch (e: Exception) {
+            null
+        }
+    }
 
     Surface(modifier = modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(modifier = Modifier.fillMaxSize().safeDrawingPadding().padding(16.dp)) {
@@ -84,6 +94,14 @@ fun SettingsScreen(
                     )
                 }
                 Switch(checked = settings.emptyStateEnabled, onCheckedChange = null)
+            }
+
+            if (versionName != null) {
+                Text(
+                    "Version $versionName",
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(top = 24.dp),
+                )
             }
         }
     }
