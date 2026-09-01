@@ -8,6 +8,8 @@ Dialect is an Android home-screen launcher (HOME role) whose entire UI is a T9 p
 
 Accessibility (TalkBack) is a first-class requirement, not a nice-to-have — see PRD §7. When touching UI code, check whether an A11Y-# requirement applies.
 
+**Commit messages in this repo must never include a `Co-Authored-By: Claude` line** (or similar Claude/Anthropic attribution trailer) — the user has explicitly opted out of this for this project.
+
 ## Commands
 
 ```bash
