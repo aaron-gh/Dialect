@@ -15,6 +15,7 @@ import com.dialect.launcher.contacts.ContactServicePreferenceRepository
 import com.dialect.launcher.contacts.resolveDefaultService
 import com.dialect.launcher.launch.AppLauncher
 import com.dialect.launcher.matching.MatchEngine
+import com.dialect.launcher.matching.mostRecentlyLaunched
 import com.dialect.launcher.settings.Settings
 import com.dialect.launcher.usage.UsageStat
 import com.dialect.launcher.usage.UsageStatsRepository
@@ -207,21 +208,14 @@ class HomeViewModel(
         }
     }
 
-    // FR-9: only apps with actual usage qualify as "most-used/most-recent"; a fresh install has none.
+    // FR-9: most-recently-launched apps, not most-launched (see mostRecentlyLaunched).
     private fun emptyStateApps(
         apps: List<AppIndexEntry>,
         stats: Map<String, UsageStat>,
         settingsValue: Settings,
     ): List<MatchTarget.AppTarget> {
         if (!settingsValue.emptyStateEnabled) return emptyList()
-        return apps
-            .filter { stats.containsKey(it.componentKey) }
-            .sortedWith(
-                compareByDescending<AppIndexEntry> { stats.getValue(it.componentKey).launchCount }
-                    .thenByDescending { stats.getValue(it.componentKey).lastLaunchedAtMillis }
-                    .thenBy { it.displayName.lowercase() },
-            )
-            .take(settingsValue.emptyStateItemCount)
+        return mostRecentlyLaunched(apps, stats, settingsValue.emptyStateItemCount)
             .map { MatchTarget.AppTarget(it) }
     }
 
