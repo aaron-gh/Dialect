@@ -179,9 +179,9 @@ fun SettingsScreen(
 }
 
 /**
- * With exactly one service there's nothing to choose between, so it's shown selected and locked
- * rather than as an interactive choice. With two or more, each service is selectable alongside an
- * explicit "Ask every time" option — [onSelect] receives null for that choice.
+ * With exactly one service there's nothing to choose between (it's used automatically — see
+ * [resolveDefaultService]), so the whole section is hidden. With two or more, each service is
+ * selectable alongside an explicit "Ask every time" option — [onSelect] receives null for that choice.
  */
 @Composable
 private fun ServiceSelector(
@@ -190,6 +190,8 @@ private fun ServiceSelector(
     selected: CommunicationService?,
     onSelect: (CommunicationService?) -> Unit,
 ) {
+    if (services.size == 1) return
+
     val effectiveSelection = resolveDefaultService(services, selected)
 
     Column(modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp)) {
@@ -204,7 +206,6 @@ private fun ServiceSelector(
                             .fillMaxWidth()
                             .selectable(
                                 selected = effectiveSelection == service,
-                                enabled = services.size > 1,
                                 role = Role.RadioButton,
                                 onClick = { onSelect(service) },
                             )
@@ -215,21 +216,19 @@ private fun ServiceSelector(
                         Text(service.label, style = MaterialTheme.typography.bodyMedium)
                     }
                 }
-                if (services.size > 1) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .selectable(
-                                selected = effectiveSelection == null,
-                                role = Role.RadioButton,
-                                onClick = { onSelect(null) },
-                            )
-                            .padding(vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        RadioButton(selected = effectiveSelection == null, onClick = null)
-                        Text("Ask every time", style = MaterialTheme.typography.bodyMedium)
-                    }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .selectable(
+                            selected = effectiveSelection == null,
+                            role = Role.RadioButton,
+                            onClick = { onSelect(null) },
+                        )
+                        .padding(vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    RadioButton(selected = effectiveSelection == null, onClick = null)
+                    Text("Ask every time", style = MaterialTheme.typography.bodyMedium)
                 }
             }
         }
