@@ -39,7 +39,12 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            // R8 on for every release: it strips unused code and obfuscates names, which shrinks the APK
+            // and makes the shipped binary much harder to read or patch. Crash traces from a release build
+            // need that build's mapping.txt to be readable again (see RELEASING.md).
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             if (keystorePropertiesFile.exists()) {
                 signingConfig = signingConfigs.getByName("release")
             }
@@ -53,6 +58,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
