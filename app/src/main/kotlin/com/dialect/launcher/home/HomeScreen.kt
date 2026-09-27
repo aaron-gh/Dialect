@@ -34,6 +34,8 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -43,13 +45,20 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.dialect.launcher.R
 import com.dialect.launcher.homerole.HomeRoleManager
+import com.dialect.launcher.quickactions.QuickActionFlowDialogs
+import com.dialect.launcher.quickactions.resolveLabel
 
 @Composable
 fun HomeScreen(viewModel: HomeViewModel, onOpenSettings: () -> Unit, modifier: Modifier = Modifier) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val announcement by viewModel.liveRegionAnnouncement.collectAsStateWithLifecycle()
     val servicePickerRequest by viewModel.servicePickerRequest.collectAsStateWithLifecycle()
+    val quickActions by viewModel.quickActions.collectAsStateWithLifecycle()
+    val quickActionFlow by viewModel.quickActionFlow.collectAsStateWithLifecycle()
+    val quickActionApps by viewModel.apps.collectAsStateWithLifecycle()
+    val quickActionContacts by viewModel.contacts.collectAsStateWithLifecycle()
     val focusRequester = remember { FocusRequester() }
     val context = LocalContext.current
 
@@ -93,7 +102,7 @@ fun HomeScreen(viewModel: HomeViewModel, onOpenSettings: () -> Unit, modifier: M
         // A11Y-4: polite live region, debounced so rapid typing isn't interrupted by a re-announcement
         // on every keystroke. Announced automatically on change; not focus-stealing.
         Text(
-            text = announcement,
+            text = announcement.resolve(),
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.semantics {
                 traversalIndex = -1f
@@ -111,14 +120,14 @@ fun HomeScreen(viewModel: HomeViewModel, onOpenSettings: () -> Unit, modifier: M
             // T-7: standard system role-picker UI, so TalkBack users get an accessible picker too.
             if (!isDefaultHome) {
                 Text(
-                    text = "Set Dialect as default launcher",
+                    text = stringResource(R.string.home_set_default_launcher),
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier
                         .clickable { roleRequestLauncher.launch(HomeRoleManager.createRequestRoleIntent(context)) },
                 )
             }
             Text(
-                text = "Settings",
+                text = stringResource(R.string.settings),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.clickable(onClick = onOpenSettings),
             )
@@ -147,7 +156,7 @@ fun HomeScreen(viewModel: HomeViewModel, onOpenSettings: () -> Unit, modifier: M
                         }
                     }
                 }
-                state.matches.isEmpty() -> Text("No matches", style = MaterialTheme.typography.bodyLarge)
+                state.matches.isEmpty() -> Text(stringResource(R.string.no_matches), style = MaterialTheme.typography.bodyLarge)
                 else -> LazyColumn {
                     itemsIndexed(state.matches) { index, match ->
                         MatchListItem(
@@ -161,10 +170,14 @@ fun HomeScreen(viewModel: HomeViewModel, onOpenSettings: () -> Unit, modifier: M
             }
         }
 
+        val assignLabel = stringResource(R.string.quick_action_assign_label)
+        val quickActionLabels = quickActions.mapValues { it.value.resolveLabel() }
         DialpadGrid(
             enterEnabled = state.matches.isNotEmpty(),
-            enterContentDescription = state.enterContentDescription,
+            enterContentDescription = state.enterDescription.resolve(),
             onDigit = viewModel::onDigit,
+            onDigitLongPress = viewModel::onDigitLongPress,
+            digitLongPressLabel = { digit -> quickActionLabels[digit] ?: assignLabel },
             onBackspace = viewModel::onBackspace,
             onBackspaceLongPress = viewModel::onClearBuffer,
             onEnter = viewModel::onEnter,
@@ -179,6 +192,31 @@ fun HomeScreen(viewModel: HomeViewModel, onOpenSettings: () -> Unit, modifier: M
             onDismiss = viewModel::onServicePickerDismissed,
         )
     }
+
+    QuickActionFlowDialogs(
+        flow = quickActionFlow,
+        contacts = quickActionContacts,
+        apps = quickActionApps,
+        onFlowChange = viewModel::onQuickActionFlowChanged,
+        onAssign = viewModel::onQuickActionAssigned,
+    )
+}
+
+// 1.2.0: resolves plain-data state (kept framework-free for testability, see EnterDescription's
+// doc) to actual localized text, only possible here where stringResource is available.
+@Composable
+private fun EnterDescription.resolve(): String = when (this) {
+    EnterDescription.NoMatches -> stringResource(R.string.enter_no_matches)
+    is EnterDescription.OpensApp -> stringResource(R.string.enter_opens, name)
+    is EnterDescription.Calls -> stringResource(R.string.enter_calls, name)
+    is EnterDescription.Messages -> stringResource(R.string.enter_messages, name)
+}
+
+@Composable
+private fun AnnouncementState.resolve(): String = when (this) {
+    AnnouncementState.Empty -> ""
+    AnnouncementState.NoMatches -> stringResource(R.string.no_matches)
+    is AnnouncementState.Matches -> pluralStringResource(R.plurals.matches_count, count, count, topName)
 }
 
 // FR-15: physical keyboard number row/numpad mapped identically to the on-screen buttons.

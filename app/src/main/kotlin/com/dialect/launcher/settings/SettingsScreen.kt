@@ -20,18 +20,27 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.dialect.launcher.R
 import com.dialect.launcher.contacts.CommunicationService
 import com.dialect.launcher.contacts.CommunicationServiceResolver
 import com.dialect.launcher.contacts.ContactActionType
 import com.dialect.launcher.contacts.resolveDefaultService
+import com.dialect.launcher.appindex.AppIndexEntry
+import com.dialect.launcher.contacts.ContactIndexEntry
+import com.dialect.launcher.quickactions.QuickActionRepository
+import com.dialect.launcher.quickactions.QuickActionsScreen
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 /** FR-19/20: matching-mode toggle and empty-state list on/off, plus contact search & dialing. */
@@ -39,9 +48,18 @@ import kotlinx.coroutines.launch
 fun SettingsScreen(
     settingsRepository: SettingsRepository,
     communicationServiceResolver: CommunicationServiceResolver,
+    quickActionRepository: QuickActionRepository,
+    apps: StateFlow<List<AppIndexEntry>>,
+    contacts: StateFlow<List<ContactIndexEntry>>,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var showQuickActions by remember { mutableStateOf(false) }
+    if (showQuickActions) {
+        QuickActionsScreen(quickActionRepository, apps, contacts, onBack = { showQuickActions = false }, modifier = modifier)
+        return
+    }
+
     val settings by settingsRepository.settings.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -67,8 +85,10 @@ fun SettingsScreen(
 
     Surface(modifier = modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(modifier = Modifier.fillMaxSize().safeDrawingPadding().padding(16.dp)) {
-            TextButton(onClick = onBack) { Text("Back") }
-            Text("Settings", style = MaterialTheme.typography.headlineMedium)
+            TextButton(onClick = onBack) { Text(stringResource(R.string.settings_back)) }
+            Text(stringResource(R.string.settings), style = MaterialTheme.typography.headlineMedium)
+
+            TextButton(onClick = { showQuickActions = true }) { Text(stringResource(R.string.quick_actions_title)) }
 
             // The whole row is the toggle target (not just the Switch), and its label/description
             // Text children merge into one accessible name — a bare Switch has no discernible label
@@ -87,9 +107,9 @@ fun SettingsScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Word-initial matching", style = MaterialTheme.typography.bodyLarge)
+                    Text(stringResource(R.string.settings_word_initial_title), style = MaterialTheme.typography.bodyLarge)
                     Text(
-                        "Also match first letters of each word, e.g. 4-6 for \"Google Maps\"",
+                        stringResource(R.string.settings_word_initial_desc),
                         style = MaterialTheme.typography.bodySmall,
                     )
                 }
@@ -110,9 +130,9 @@ fun SettingsScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Show recent apps on empty buffer", style = MaterialTheme.typography.bodyLarge)
+                    Text(stringResource(R.string.settings_recent_apps_title), style = MaterialTheme.typography.bodyLarge)
                     Text(
-                        "Shown silently; not announced by TalkBack until you navigate to it",
+                        stringResource(R.string.settings_recent_apps_desc),
                         style = MaterialTheme.typography.bodySmall,
                     )
                 }
@@ -143,9 +163,9 @@ fun SettingsScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Contact search & dialing", style = MaterialTheme.typography.bodyLarge)
+                    Text(stringResource(R.string.settings_contact_dialing_title), style = MaterialTheme.typography.bodyLarge)
                     Text(
-                        "Search contacts by name (or type 60 then a name to message instead of call)",
+                        stringResource(R.string.settings_contact_dialing_desc),
                         style = MaterialTheme.typography.bodySmall,
                     )
                 }
@@ -154,13 +174,13 @@ fun SettingsScreen(
 
             if (settings.contactDialingEnabled) {
                 ServiceSelector(
-                    title = "Default call service",
+                    title = stringResource(R.string.settings_default_call_service),
                     services = communicationServiceResolver.availableServicesFor(ContactActionType.CALL),
                     selected = settings.defaultCallService,
                     onSelect = { service -> scope.launch { settingsRepository.setDefaultCallService(service) } },
                 )
                 ServiceSelector(
-                    title = "Default message service",
+                    title = stringResource(R.string.settings_default_message_service),
                     services = communicationServiceResolver.availableServicesFor(ContactActionType.MESSAGE),
                     selected = settings.defaultMessageService,
                     onSelect = { service -> scope.launch { settingsRepository.setDefaultMessageService(service) } },
@@ -169,7 +189,7 @@ fun SettingsScreen(
 
             if (versionName != null) {
                 Text(
-                    "Version $versionName",
+                    stringResource(R.string.settings_version, versionName),
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.padding(top = 24.dp),
                 )
@@ -197,7 +217,7 @@ private fun ServiceSelector(
     Column(modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp)) {
         Text(title, style = MaterialTheme.typography.bodyLarge)
         if (services.isEmpty()) {
-            Text("No services available on this device", style = MaterialTheme.typography.bodySmall)
+            Text(stringResource(R.string.settings_no_services_available), style = MaterialTheme.typography.bodySmall)
         } else {
             Column(modifier = Modifier.selectableGroup()) {
                 for (service in services) {
@@ -213,7 +233,7 @@ private fun ServiceSelector(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         RadioButton(selected = effectiveSelection == service, onClick = null)
-                        Text(service.label, style = MaterialTheme.typography.bodyMedium)
+                        Text(stringResource(service.labelRes), style = MaterialTheme.typography.bodyMedium)
                     }
                 }
                 Row(
@@ -228,7 +248,7 @@ private fun ServiceSelector(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     RadioButton(selected = effectiveSelection == null, onClick = null)
-                    Text("Ask every time", style = MaterialTheme.typography.bodyMedium)
+                    Text(stringResource(R.string.ask_every_time), style = MaterialTheme.typography.bodyMedium)
                 }
             }
         }

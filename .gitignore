@@ -10,3 +10,9 @@ app/build/
 .cxx/
 captures/
 .DS_Store
+
+# Stray FUSE-mount leftovers
+.fuse_hidden*
+
+# Internal record of the Pro-mode shutdown (real Stripe/Firebase identifiers) — not for the public repo
+/docs/pro-mode-shutdown.md

@@ -8,6 +8,7 @@ import com.dialect.launcher.contacts.CommunicationServiceResolver
 import com.dialect.launcher.contacts.ContactIndexRepository
 import com.dialect.launcher.contacts.ContactServicePreferenceRepository
 import com.dialect.launcher.launch.AppLauncher
+import com.dialect.launcher.quickactions.QuickActionRepository
 import com.dialect.launcher.settings.SettingsRepository
 import com.dialect.launcher.usage.UsageStatsRepository
 import kotlinx.coroutines.CoroutineScope
@@ -32,6 +33,7 @@ class AppContainer(context: Context) {
     val contactIndexRepository = ContactIndexRepository(context)
     val communicationServiceResolver = CommunicationServiceResolver(context)
     val contactServicePreferenceRepository = ContactServicePreferenceRepository(context)
+    val quickActionRepository = QuickActionRepository(context)
 
     init {
         // Contact indexing only ever runs while the user has explicitly opted in via Settings.

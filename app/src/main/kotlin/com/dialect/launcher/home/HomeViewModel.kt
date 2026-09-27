@@ -9,6 +9,7 @@ import com.dialect.launcher.appindex.AppIndexRepository
 import com.dialect.launcher.contacts.CommunicationService
 import com.dialect.launcher.contacts.CommunicationServiceResolver
 import com.dialect.launcher.contacts.ContactActionType
+import com.dialect.launcher.contacts.ContactIndexEntry
 import com.dialect.launcher.contacts.ContactIndexRepository
 import com.dialect.launcher.contacts.ContactPreference
 import com.dialect.launcher.contacts.ContactServicePreferenceRepository
@@ -16,6 +17,9 @@ import com.dialect.launcher.contacts.resolveDefaultService
 import com.dialect.launcher.launch.AppLauncher
 import com.dialect.launcher.matching.MatchEngine
 import com.dialect.launcher.matching.mostRecentlyLaunched
+import com.dialect.launcher.quickactions.QuickAction
+import com.dialect.launcher.quickactions.QuickActionFlowState
+import com.dialect.launcher.quickactions.QuickActionRepository
 import com.dialect.launcher.settings.Settings
 import com.dialect.launcher.usage.UsageStat
 import com.dialect.launcher.usage.UsageStatsRepository
@@ -31,19 +35,27 @@ import kotlinx.coroutines.flow.stateIn
 /** A buffer starting with this (M=6, 0=separator) searches contacts-only, action = message instead of call. */
 private const val MESSAGE_MODE_PREFIX = "60"
 
+// 1.2.0: plain data, resolved to localized text at the Compose layer (see EnterDescription's doc).
+sealed class AnnouncementState {
+    data object Empty : AnnouncementState()
+    data object NoMatches : AnnouncementState()
+    data class Matches(val count: Int, val topName: String) : AnnouncementState()
+}
+
 /**
  * Combines the buffer, live app + contact indexes, usage stats, and settings into a ranked match
  * list. Because ranking is re-derived from all sources (not just keystrokes), an app being
  * uninstalled while it's the top match re-ranks instantly (§10 edge case).
  */
 class HomeViewModel(
-    appIndexRepository: AppIndexRepository,
-    contactIndexRepository: ContactIndexRepository,
+    private val appIndexRepository: AppIndexRepository,
+    private val contactIndexRepository: ContactIndexRepository,
     usageStatsRepository: UsageStatsRepository,
     private val settings: StateFlow<Settings>,
     private val appLauncher: AppLauncher,
     private val communicationServiceResolver: CommunicationServiceResolver,
     private val contactServicePreferenceRepository: ContactServicePreferenceRepository,
+    private val quickActionRepository: QuickActionRepository,
 ) : ViewModel() {
     private val buffer = MutableStateFlow("")
 
@@ -76,6 +88,15 @@ class HomeViewModel(
     private val _servicePickerRequest = MutableStateFlow<ServicePickerRequest?>(null)
     val servicePickerRequest: StateFlow<ServicePickerRequest?> = _servicePickerRequest
 
+    // Raw (unranked) lists for the Quick Actions pickers.
+    val apps: StateFlow<List<AppIndexEntry>> = appIndexRepository.index
+    val contacts: StateFlow<List<ContactIndexEntry>> = contactIndexRepository.contacts
+
+    val quickActions: StateFlow<Map<Char, QuickAction>> = quickActionRepository.actions
+
+    private val _quickActionFlow = MutableStateFlow<QuickActionFlowState?>(null)
+    val quickActionFlow: StateFlow<QuickActionFlowState?> = _quickActionFlow
+
     private val recordLaunch: (String) -> Unit = usageStatsRepository::recordLaunch
 
     /**
@@ -84,10 +105,10 @@ class HomeViewModel(
      * fast typist isn't interrupted by a full re-announcement on every digit ("TalkBack spam").
      */
     @OptIn(FlowPreview::class)
-    val liveRegionAnnouncement: StateFlow<String> = uiState
+    val liveRegionAnnouncement: StateFlow<AnnouncementState> = uiState
         .debounce(300L)
         .map(::describeForAnnouncement)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "")
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), AnnouncementState.Empty)
 
     fun onDigit(digit: Char) {
         buffer.value += digit
@@ -148,6 +169,38 @@ class HomeViewModel(
 
     fun onServicePickerDismissed() {
         _servicePickerRequest.value = null
+    }
+
+    /** Speed-dial-style: an assigned digit runs its action at once; an unassigned one starts assignment. */
+    fun onDigitLongPress(digit: Char) {
+        val existing = quickActionRepository.actions.value[digit]
+        if (existing != null) {
+            executeQuickAction(existing)
+        } else {
+            _quickActionFlow.value = QuickActionFlowState.ChoosingType(digit)
+        }
+    }
+
+    fun onQuickActionFlowChanged(state: QuickActionFlowState?) {
+        _quickActionFlow.value = state
+    }
+
+    fun onQuickActionAssigned(digit: Char, action: QuickAction) {
+        _quickActionFlow.value = null
+        quickActionRepository.assign(digit, action)
+    }
+
+    private fun executeQuickAction(action: QuickAction) {
+        when (action) {
+            is QuickAction.CallContact -> activateQuickContact(action.contactId, ContactActionType.CALL)
+            is QuickAction.MessageContact -> activateQuickContact(action.contactId, ContactActionType.MESSAGE)
+            is QuickAction.OpenApp -> apps.value.find { it.componentKey == action.componentKey }?.let(::launchApp)
+        }
+    }
+
+    private fun activateQuickContact(contactId: Long, actionType: ContactActionType) {
+        contacts.value.find { it.contactId == contactId }
+            ?.let { activateContact(MatchTarget.ContactTarget(it, actionType)) }
     }
 
     private fun activate(target: MatchTarget) {
@@ -219,10 +272,10 @@ class HomeViewModel(
             .map { MatchTarget.AppTarget(it) }
     }
 
-    private fun describeForAnnouncement(state: HomeUiState): String = when {
-        state.buffer.isEmpty() -> ""
-        state.matches.isEmpty() -> "No matches"
-        else -> "${state.matches.size} matches, top: ${state.matches.first().entry.displayName}"
+    private fun describeForAnnouncement(state: HomeUiState): AnnouncementState = when {
+        state.buffer.isEmpty() -> AnnouncementState.Empty
+        state.matches.isEmpty() -> AnnouncementState.NoMatches
+        else -> AnnouncementState.Matches(state.matches.size, state.matches.first().entry.displayName)
     }
 
     class Factory(private val container: AppContainer) : ViewModelProvider.Factory {
@@ -236,6 +289,7 @@ class HomeViewModel(
                 container.appLauncher,
                 container.communicationServiceResolver,
                 container.contactServicePreferenceRepository,
+                container.quickActionRepository,
             ) as T
         }
     }

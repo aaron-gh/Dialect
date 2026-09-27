@@ -44,4 +44,23 @@
     <string name="service_sms">Messages</string>
 
     <string name="safe_mode_banner">Dialect ran into a problem and is showing a simplified app list.</string>
+
+
+    <!-- Quick Actions -->
+    <string name="quick_actions_title">Quick Actions</string>
+    <string name="quick_actions_empty">Hold a number on the dialpad to add one</string>
+    <string name="quick_action_digit_row">%1$s — %2$s</string>
+    <string name="quick_action_type_title">Hold %1$s to…</string>
+    <string name="quick_action_call_contact">Call a contact</string>
+    <string name="quick_action_message_contact">Message a contact</string>
+    <string name="quick_action_open_app">Open an app</string>
+    <string name="quick_action_search_contacts">Search contacts</string>
+    <string name="quick_action_search_apps">Search apps</string>
+    <string name="quick_action_no_results">No matches</string>
+    <string name="quick_action_change">Change</string>
+    <string name="quick_action_remove">Remove</string>
+    <string name="quick_action_assign_label">Set quick action</string>
+    <string name="quick_action_calls">Call %1$s</string>
+    <string name="quick_action_messages">Message %1$s</string>
+    <string name="quick_action_opens">Open %1$s</string>
 </resources>

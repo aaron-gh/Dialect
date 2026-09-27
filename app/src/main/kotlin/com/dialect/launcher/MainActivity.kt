@@ -54,6 +54,9 @@ class MainActivity : ComponentActivity() {
                         SettingsScreen(
                             settingsRepository = container.settingsRepository,
                             communicationServiceResolver = container.communicationServiceResolver,
+                            quickActionRepository = container.quickActionRepository,
+                            apps = vm.apps,
+                            contacts = vm.contacts,
                             onBack = { showSettings = false },
                         )
                     } else {
