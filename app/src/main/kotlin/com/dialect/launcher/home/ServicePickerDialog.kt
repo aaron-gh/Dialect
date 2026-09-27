@@ -16,7 +16,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import com.dialect.launcher.R
 import com.dialect.launcher.contacts.CommunicationService
 import com.dialect.launcher.contacts.ContactActionType
 
@@ -34,19 +36,23 @@ fun ServicePickerDialog(
     onDismiss: () -> Unit,
 ) {
     var setAsDefault by remember(request) { mutableStateOf(request.allowSetAsDefault) }
-    val verb = if (request.actionType == ContactActionType.CALL) "Call" else "Message"
+    val title = if (request.actionType == ContactActionType.CALL) {
+        stringResource(R.string.dialog_title_call, request.contactName)
+    } else {
+        stringResource(R.string.dialog_title_message, request.contactName)
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("$verb ${request.contactName}") },
+        title = { Text(title) },
         text = {
             Column {
                 if (request.availableServices.isEmpty()) {
-                    Text("No service is available for this.")
+                    Text(stringResource(R.string.dialog_no_service_available))
                 } else {
                     for (service in request.availableServices) {
                         TextButton(onClick = { onServicePicked(service, setAsDefault) }) {
-                            Text(service.label)
+                            Text(stringResource(service.labelRes))
                         }
                     }
                 }
@@ -63,18 +69,18 @@ fun ServicePickerDialog(
                     ) {
                         Checkbox(checked = setAsDefault, onCheckedChange = null)
                         Text(
-                            "Always use this for ${request.contactName}",
+                            stringResource(R.string.dialog_always_use_for, request.contactName),
                             style = MaterialTheme.typography.bodySmall,
                         )
                     }
                     if (request.availableServices.size > 1) {
-                        TextButton(onClick = onAskEveryTimePicked) { Text("Ask every time") }
+                        TextButton(onClick = onAskEveryTimePicked) { Text(stringResource(R.string.ask_every_time)) }
                     }
                 }
             }
         },
         confirmButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.dialog_cancel)) }
         },
     )
 }

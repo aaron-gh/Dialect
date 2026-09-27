@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_set_default_launcher">Imposta Dialect come app Home predefinita</string>
+    <string name="settings">Impostazioni</string>
+    <string name="no_matches">Nessun risultato</string>
+    <string name="ask_every_time">Chiedi sempre</string>
+
+    <string name="dialpad_backspace">Backspace</string>
+    <string name="dialpad_clear_all">Cancella tutto</string>
+
+    <string name="enter_no_matches">Invio, nessun risultato da aprire</string>
+    <string name="enter_opens">Invio, apre %1$s</string>
+    <string name="enter_calls">Invio, chiama %1$s</string>
+    <string name="enter_messages">Invio, invia un messaggio a %1$s</string>
+
+    <plurals name="matches_count">
+        <item quantity="one">%1$d risultato, il primo: %2$s</item>
+        <item quantity="other">%1$d risultati, il primo: %2$s</item>
+    </plurals>
+
+    <string name="settings_back">Indietro</string>
+    <string name="settings_word_initial_title">Corrispondenza per iniziali</string>
+    <string name="settings_word_initial_desc">Fa corrispondere anche le iniziali di ogni parola, es. 4-6 per \"Google Maps\"</string>
+    <string name="settings_recent_apps_title">Mostra app recenti a campo vuoto</string>
+    <string name="settings_recent_apps_desc">Mostrato in silenzio; non annunciato da TalkBack finché non ci navighi</string>
+    <string name="settings_contact_dialing_title">Ricerca e chiamata contatti</string>
+    <string name="settings_contact_dialing_desc">Cerca i contatti per nome (o digita 60 seguito da un nome per inviare un messaggio invece di chiamare)</string>
+    <string name="settings_default_call_service">Servizio di chiamata predefinito</string>
+    <string name="settings_default_message_service">Servizio di messaggistica predefinito</string>
+    <string name="settings_no_services_available">Nessun servizio disponibile su questo dispositivo</string>
+    <string name="settings_version">Versione %1$s</string>
+
+    <string name="dialog_title_call">Chiama %1$s</string>
+    <string name="dialog_title_message">Invia un messaggio a %1$s</string>
+    <string name="dialog_no_service_available">Nessun servizio disponibile per questa azione.</string>
+    <string name="dialog_always_use_for">Usa sempre questo servizio per %1$s</string>
+    <string name="dialog_cancel">Annulla</string>
+
+    <string name="service_phone">Telefono</string>
+    <string name="service_sms">Messaggi</string>
+
+    <string name="safe_mode_banner">Dialect ha riscontrato un problema e mostra un elenco di app semplificato.</string>
+
+</resources>

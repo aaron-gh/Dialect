@@ -134,7 +134,7 @@ Priority key: **P0** = required for MVP, **P1** = should have, **P2** = future/n
 
 ### 6.2 App Index
 
-**FR-8 (P0): Index build & refresh.** Build the searchable index from `PackageManager` queries for all activities exposing `CATEGORY_LAUNCHER`, including apps that expose multiple launcher activities (aliases/shortcuts) and work-profile apps (via `CrossProfileApps` / `LauncherApps`). Rebuild incrementally on `ACTION_PACKAGE_ADDED`, `ACTION_PACKAGE_REMOVED`, `ACTION_PACKAGE_REPLACED`, and profile-availability broadcasts. Index build/refresh must run off the main thread.
+**FR-8 (P0): Index build & refresh.** Build the searchable index from `PackageManager` queries for all activities exposing `CATEGORY_LAUNCHER`, including apps that expose multiple launcher activities (aliases/shortcuts) and work-profile apps (via `CrossProfileApps` / `LauncherApps`). Rebuild incrementally on package added/removed/changed and profile-availability events, via `LauncherApps.Callback` (a manifest receiver for `ACTION_PACKAGE_*` is not viable on API 26+, where those implicit broadcasts are no longer delivered to manifest receivers), plus a full rebuild on every process start. Index build/refresh must run off the main thread.
 
 **FR-9 (P1): Empty-buffer default state.** When no digits are typed, optionally show a short list of most-used or most-recent apps rather than a fully blank screen, configurable in settings (default: on, 4 items). **Decision: the list is not auto-announced by TalkBack on launcher open** — it renders silently and is only spoken when the user explicitly navigates focus into it (consistent with the "no spam" principle in A11Y-4; a blind user landing on the home screen shouldn't get an unsolicited announcement before they've done anything).
 
@@ -218,7 +218,7 @@ This is a first-class requirement, not a post-hoc audit item. Every requirement 
 
 **NFR-2: Privacy.** No network permissions requested. No analytics/telemetry by default. Usage-frequency data (FR-6, FR-9) stored locally only, never transmitted. If any opt-in telemetry is added later, it must be off by default and clearly disclosed.
 
-**NFR-3: Battery/resource use.** No background services beyond the package-change broadcast receiver (FR-8); no polling.
+**NFR-3: Battery/resource use.** No background services and no manifest broadcast receivers; package changes arrive via `LauncherApps.Callback` while the process is alive (FR-8); no polling.
 
 **NFR-4: Reliability as HOME app.** Must never crash-loop into a state where the device has no usable launcher (e.g. a fatal error on the home screen should fail into a minimal safe state, not a boot loop — this is a much higher bar for a launcher than for an ordinary app, since a crash here can strand the user with no way to reach any other app).
 

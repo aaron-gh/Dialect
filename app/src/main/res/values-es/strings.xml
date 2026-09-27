@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_set_default_launcher">Establecer Dialect como aplicación de inicio predeterminada</string>
+    <string name="settings">Ajustes</string>
+    <string name="no_matches">Sin resultados</string>
+    <string name="ask_every_time">Preguntar siempre</string>
+
+    <string name="dialpad_backspace">Retroceso</string>
+    <string name="dialpad_clear_all">Borrar todo</string>
+
+    <string name="enter_no_matches">Intro, no hay resultados que abrir</string>
+    <string name="enter_opens">Intro, abre %1$s</string>
+    <string name="enter_calls">Intro, llama a %1$s</string>
+    <string name="enter_messages">Intro, envía un mensaje a %1$s</string>
+
+    <plurals name="matches_count">
+        <item quantity="one">%1$d resultado, el primero: %2$s</item>
+        <item quantity="other">%1$d resultados, el primero: %2$s</item>
+    </plurals>
+
+    <string name="settings_back">Atrás</string>
+    <string name="settings_word_initial_title">Coincidencia por iniciales</string>
+    <string name="settings_word_initial_desc">También hace coincidir las primeras letras de cada palabra, p. ej. 4-6 para \"Google Maps\"</string>
+    <string name="settings_recent_apps_title">Mostrar aplicaciones recientes con el campo vacío</string>
+    <string name="settings_recent_apps_desc">Se muestra en silencio; TalkBack no lo anuncia hasta que navegas hasta ahí</string>
+    <string name="settings_contact_dialing_title">Búsqueda y llamada de contactos</string>
+    <string name="settings_contact_dialing_desc">Busca contactos por nombre (o escribe 60 seguido de un nombre para enviar un mensaje en lugar de llamar)</string>
+    <string name="settings_default_call_service">Servicio de llamada predeterminado</string>
+    <string name="settings_default_message_service">Servicio de mensajes predeterminado</string>
+    <string name="settings_no_services_available">No hay ningún servicio disponible en este dispositivo</string>
+    <string name="settings_version">Versión %1$s</string>
+
+    <string name="dialog_title_call">Llamar a %1$s</string>
+    <string name="dialog_title_message">Enviar un mensaje a %1$s</string>
+    <string name="dialog_no_service_available">No hay ningún servicio disponible para esto.</string>
+    <string name="dialog_always_use_for">Usar siempre este servicio para %1$s</string>
+    <string name="dialog_cancel">Cancelar</string>
+
+    <string name="service_phone">Teléfono</string>
+    <string name="service_sms">Mensajes</string>
+
+    <string name="safe_mode_banner">Dialect ha tenido un problema y muestra una lista de aplicaciones simplificada.</string>
+
+</resources>

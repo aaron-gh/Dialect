@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_set_default_launcher">Сделать Dialect лаунчером по умолчанию</string>
+    <string name="settings">Настройки</string>
+    <string name="no_matches">Нет совпадений</string>
+    <string name="ask_every_time">Спрашивать каждый раз</string>
+
+    <string name="dialpad_backspace">Стереть</string>
+    <string name="dialpad_clear_all">Очистить всё</string>
+
+    <string name="enter_no_matches">Ввод, нет совпадений для открытия</string>
+    <string name="enter_opens">Ввод, открывает %1$s</string>
+    <string name="enter_calls">Ввод, звонит %1$s</string>
+    <string name="enter_messages">Ввод, отправляет сообщение %1$s</string>
+
+    <plurals name="matches_count">
+        <item quantity="one">%1$d совпадение, первое: %2$s</item>
+        <item quantity="few">%1$d совпадения, первое: %2$s</item>
+        <item quantity="many">%1$d совпадений, первое: %2$s</item>
+        <item quantity="other">%1$d совпадения, первое: %2$s</item>
+    </plurals>
+
+    <string name="settings_back">Назад</string>
+    <string name="settings_word_initial_title">Сопоставление по первым буквам слов</string>
+    <string name="settings_word_initial_desc">Также сопоставляет первые буквы каждого слова, напр. 4-6 для \"Google Maps\"</string>
+    <string name="settings_recent_apps_title">Показывать недавние приложения при пустом поле</string>
+    <string name="settings_recent_apps_desc">Показывается беззвучно; TalkBack не объявляет, пока вы не перейдёте к списку</string>
+    <string name="settings_contact_dialing_title">Поиск и вызов контактов</string>
+    <string name="settings_contact_dialing_desc">Искать контакты по имени (или введите 60, затем имя, чтобы отправить сообщение вместо звонка)</string>
+    <string name="settings_default_call_service">Служба для звонков по умолчанию</string>
+    <string name="settings_default_message_service">Служба для сообщений по умолчанию</string>
+    <string name="settings_no_services_available">На этом устройстве нет доступных служб</string>
+    <string name="settings_version">Версия %1$s</string>
+
+    <string name="dialog_title_call">Позвонить %1$s</string>
+    <string name="dialog_title_message">Отправить сообщение %1$s</string>
+    <string name="dialog_no_service_available">Для этого нет доступной службы.</string>
+    <string name="dialog_always_use_for">Всегда использовать эту службу для %1$s</string>
+    <string name="dialog_cancel">Отмена</string>
+
+    <string name="service_phone">Телефон</string>
+    <string name="service_sms">Сообщения</string>
+
+    <string name="safe_mode_banner">В Dialect произошла ошибка, показан упрощённый список приложений.</string>
+
+</resources>

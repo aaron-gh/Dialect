@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_set_default_launcher">Ορισμός του Dialect ως προεπιλεγμένης εφαρμογής αρχικής οθόνης</string>
+    <string name="settings">Ρυθμίσεις</string>
+    <string name="no_matches">Καμία αντιστοίχιση</string>
+    <string name="ask_every_time">Ερώτηση κάθε φορά</string>
+
+    <string name="dialpad_backspace">Διαγραφή</string>
+    <string name="dialpad_clear_all">Διαγραφή όλων</string>
+
+    <string name="enter_no_matches">Enter, καμία αντιστοίχιση για άνοιγμα</string>
+    <string name="enter_opens">Enter, ανοίγει %1$s</string>
+    <string name="enter_calls">Enter, καλεί %1$s</string>
+    <string name="enter_messages">Enter, στέλνει μήνυμα σε %1$s</string>
+
+    <plurals name="matches_count">
+        <item quantity="one">%1$d αποτέλεσμα, κορυφαίο: %2$s</item>
+        <item quantity="other">%1$d αποτελέσματα, κορυφαίο: %2$s</item>
+    </plurals>
+
+    <string name="settings_back">Πίσω</string>
+    <string name="settings_word_initial_title">Αντιστοίχιση αρχικών λέξεων</string>
+    <string name="settings_word_initial_desc">Αντιστοιχίζει επίσης τα πρώτα γράμματα κάθε λέξης, π.χ. 4-6 για το \"Google Maps\"</string>
+    <string name="settings_recent_apps_title">Εμφάνιση πρόσφατων εφαρμογών όταν το πεδίο είναι κενό</string>
+    <string name="settings_recent_apps_desc">Εμφανίζεται σιωπηλά· δεν ανακοινώνεται από το TalkBack μέχρι να πλοηγηθείτε σε αυτό</string>
+    <string name="settings_contact_dialing_title">Αναζήτηση και κλήση επαφών</string>
+    <string name="settings_contact_dialing_desc">Αναζήτηση επαφών με βάση το όνομα (ή πληκτρολογήστε 60 και μετά ένα όνομα για αποστολή μηνύματος αντί για κλήση)</string>
+    <string name="settings_default_call_service">Προεπιλεγμένη υπηρεσία κλήσεων</string>
+    <string name="settings_default_message_service">Προεπιλεγμένη υπηρεσία μηνυμάτων</string>
+    <string name="settings_no_services_available">Δεν υπάρχει διαθέσιμη υπηρεσία σε αυτήν τη συσκευή</string>
+    <string name="settings_version">Έκδοση %1$s</string>
+
+    <string name="dialog_title_call">Κλήση %1$s</string>
+    <string name="dialog_title_message">Μήνυμα σε %1$s</string>
+    <string name="dialog_no_service_available">Δεν υπάρχει διαθέσιμη υπηρεσία για αυτό.</string>
+    <string name="dialog_always_use_for">Χρήση πάντα αυτής της υπηρεσίας για %1$s</string>
+    <string name="dialog_cancel">Ακύρωση</string>
+
+    <string name="service_phone">Τηλέφωνο</string>
+    <string name="service_sms">Μηνύματα</string>
+
+    <string name="safe_mode_banner">Το Dialect αντιμετώπισε ένα πρόβλημα και εμφανίζει μια απλοποιημένη λίστα εφαρμογών.</string>
+
+</resources>

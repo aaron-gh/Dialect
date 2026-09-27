@@ -52,6 +52,15 @@ class CommunicationServiceResolver(context: Context) {
             when (service) {
                 CommunicationService.PHONE -> true // native telephony, assumed present on any phone
                 CommunicationService.SMS -> false // SMS apps don't place calls
+                // WhatsApp's SelfManagedConnectionService rejects outgoing calls placed by
+                // third-party apps — confirmed via dumpsys telecom against a real device: it
+                // self-disconnects the call (Code: ERROR) within ~20ms of START_CONNECTION, before
+                // ever showing its own call UI, even with a correctly formatted number and a real,
+                // WhatsApp-reachable contact. The standard Contacts-Provider discovery mechanism for
+                // "call via WhatsApp" is also dead — WhatsApp no longer writes the
+                // vnd.com.whatsapp.voip.call data row for any synced contact on this device.
+                // Messaging via the wa.me deep link is unaffected and still works.
+                CommunicationService.WHATSAPP -> false
                 else -> service.packageName != null && registeredPackages.contains(service.packageName)
             }
         }
@@ -68,16 +77,21 @@ class CommunicationServiceResolver(context: Context) {
     }
 
     private fun buildCallIntent(service: CommunicationService, phoneNumber: String): Intent? {
-        val uri = Uri.parse("tel:$phoneNumber")
         if (service == CommunicationService.PHONE) {
-            return Intent(Intent.ACTION_CALL, uri)
+            return Intent(Intent.ACTION_CALL, Uri.parse("tel:$phoneNumber"))
         }
         val handle = findPhoneAccountHandle(service) ?: return null
+        // Unlike native telephony (which normalizes any formatted tel: URI itself, the same as the
+        // system Dialer), a self-managed ConnectionService like WhatsApp has to match the number
+        // against its own contact list to resolve who to ring. A formatted number ("(555) 123-4567")
+        // fails that lookup silently — WhatsApp never gets a match to accept or reject, so the call
+        // sits in Telecom's "Dialing" state forever instead of failing visibly.
+        val uri = Uri.parse("tel:${sanitizePhoneNumber(phoneNumber)}")
         return Intent(Intent.ACTION_CALL, uri).putExtra(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, handle)
     }
 
     private fun buildMessageIntent(service: CommunicationService, phoneNumber: String): Intent? {
-        val sanitized = phoneNumber.filter { it.isDigit() || it == '+' }
+        val sanitized = sanitizePhoneNumber(phoneNumber)
         return when (service) {
             CommunicationService.SMS -> Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:$phoneNumber"))
             CommunicationService.WHATSAPP -> Intent(Intent.ACTION_VIEW, Uri.parse("https://wa.me/$sanitized"))
@@ -85,6 +99,8 @@ class CommunicationServiceResolver(context: Context) {
             CommunicationService.PHONE -> null
         }
     }
+
+    private fun sanitizePhoneNumber(phoneNumber: String): String = phoneNumber.filter { it.isDigit() || it == '+' }
 
     private fun findPhoneAccountHandle(service: CommunicationService): PhoneAccountHandle? {
         val packageName = service.packageName ?: return null

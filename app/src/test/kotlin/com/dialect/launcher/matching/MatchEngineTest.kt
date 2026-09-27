@@ -81,6 +81,24 @@ class MatchEngineTest {
     }
 
     @Test
+    fun `Cyrillic and Greek app names produce real digit sequences and are matched`() {
+        // Before 1.2.0's script extension, non-Latin names produced an empty digit sequence and
+        // were permanently unreachable (filterAndRank short-circuits on an empty buffer).
+        val yandex = TestApp("yandex", "Яндекс")
+        val ethnos = TestApp("ethnos", "Έθνος")
+        val mixedIndex = index + yandex + ethnos
+
+        assertTrue(yandex.fullPrefixDigits.isNotEmpty())
+        assertTrue(ethnos.fullPrefixDigits.isNotEmpty())
+
+        val cyrillicResult = MatchEngine.filterAndRank(yandex.fullPrefixDigits, mixedIndex, emptyMap(), wordInitialModeEnabled = false)
+        assertTrue(cyrillicResult.any { it.entry.displayName == "Яндекс" })
+
+        val greekResult = MatchEngine.filterAndRank(ethnos.fullPrefixDigits, mixedIndex, emptyMap(), wordInitialModeEnabled = false)
+        assertTrue(greekResult.any { it.entry.displayName == "Έθνος" })
+    }
+
+    @Test
     fun `identical stats fall back to deterministic alphabetical order`() {
         val result1 = MatchEngine.filterAndRank("3", index, emptyMap(), wordInitialModeEnabled = false)
         val result2 = MatchEngine.filterAndRank("3", index, emptyMap(), wordInitialModeEnabled = false)

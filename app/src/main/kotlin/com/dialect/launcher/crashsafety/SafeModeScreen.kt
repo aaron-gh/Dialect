@@ -18,7 +18,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.dialect.launcher.R
 
 private data class SafeModeApp(val label: String, val packageName: String)
 
@@ -34,7 +36,7 @@ fun SafeModeScreen(modifier: Modifier = Modifier) {
     Surface(modifier = modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(modifier = Modifier.safeDrawingPadding().padding(16.dp)) {
             Text(
-                "Dialect ran into a problem and is showing a simplified app list.",
+                stringResource(R.string.safe_mode_banner),
                 style = MaterialTheme.typography.bodyMedium,
             )
             LazyColumn {

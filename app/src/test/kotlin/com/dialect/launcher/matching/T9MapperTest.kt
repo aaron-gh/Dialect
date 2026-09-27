@@ -45,4 +45,30 @@ class T9MapperTest {
         assertNull(T9Mapper.charToDigit('-'))
         assertNull(T9Mapper.charToDigit('!'))
     }
+
+    @Test
+    fun `non-decomposing Latin letters map explicitly`() {
+        // ss (German sharp s) shares S's key; French oe ligature shares O's key.
+        assertEquals('7', T9Mapper.charToDigit('ß'))
+        assertEquals('7', T9Mapper.charToDigit('ẞ'))
+        assertEquals('6', T9Mapper.charToDigit('œ'))
+        assertEquals('6', T9Mapper.charToDigit('Œ'))
+    }
+
+    @Test
+    fun `Cyrillic letters map to the standard Russian keypad digits`() {
+        assertEquals('2', T9Mapper.charToDigit('а'))
+        assertEquals('3', T9Mapper.charToDigit('е'))
+        assertEquals('3', T9Mapper.charToDigit('ё'))
+        assertEquals('9', T9Mapper.charToDigit('я'))
+        assertEquals(T9Mapper.charToDigit('а'), T9Mapper.charToDigit('А'))
+    }
+
+    @Test
+    fun `Greek letters map to digits in alphabetical order, 3 per key`() {
+        assertEquals('2', T9Mapper.charToDigit('α'))
+        assertEquals('3', T9Mapper.charToDigit('δ'))
+        assertEquals('9', T9Mapper.charToDigit('ω'))
+        assertEquals(T9Mapper.charToDigit('α'), T9Mapper.charToDigit('Α'))
+    }
 }
